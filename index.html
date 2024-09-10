@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursive Partitioning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .partition {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;  
+            align-items: center;     
+            border: 1px solid #000;
+            background-color: rgba(200, 200, 255, 0.8);
+            resize: both;
+            overflow: hidden;
+            font-size: 14px;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+        }
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+        .buttons button {
+            margin: 5px 0;
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .partition-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            flex-grow: 1;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div id="container" class="partition">
+        <div class="buttons">
+            <button class="split-vertical">V</button>
+            <button class="split-horizontal">H</button>
+            <button class="remove-partition">-</button>
+        </div>
+        <div class="partition-content">Partition 1</div>
+    </div>
+
+    <script>
+        let partitionCount = 1;
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function createPartition() {
+            const partition = document.createElement('div');
+            partition.classList.add('partition');
+            partition.style.backgroundColor = getRandomColor();
+            partition.innerHTML = `
+                <div class="buttons">
+                    <button class="split-vertical">V</button>
+                    <button class="split-horizontal">H</button>
+                    <button class="remove-partition">-</button>
+                </div>
+                <div class="partition-content">Partition ${++partitionCount}</div>`;
+            bindButtons(partition);  
+            return partition;
+        }
+
+        function bindButtons(partition) {
+            const verticalBtn = partition.querySelector('.split-vertical');
+            const horizontalBtn = partition.querySelector('.split-horizontal');
+            const removeBtn = partition.querySelector('.remove-partition');
+
+            verticalBtn.addEventListener('click', () => splitVertical(partition));
+            horizontalBtn.addEventListener('click', () => splitHorizontal(partition));
+            removeBtn.addEventListener('click', () => removePartition(partition));
+        }
+
+        function splitVertical(parent) {
+            const container = document.createElement('div');
+            container.classList.add('partition-container');
+            
+            const leftPartition = createPartition();
+            const rightPartition = createPartition();
+
+            container.appendChild(leftPartition);
+            container.appendChild(rightPartition);
+            container.style.flexDirection = 'row';
+
+            parent.replaceWith(container);
+            bindButtons(leftPartition);
+            bindButtons(rightPartition);
+        }
+
+        function splitHorizontal(parent) {
+            const container = document.createElement('div');
+            container.classList.add('partition-container');
+            
+            const topPartition = createPartition();
+            const bottomPartition = createPartition();
+
+            container.appendChild(topPartition);
+            container.appendChild(bottomPartition);
+            container.style.flexDirection = 'column';
+
+            parent.replaceWith(container);
+            bindButtons(topPartition);
+            bindButtons(bottomPartition);
+        }
+
+        function removePartition(partition) {
+            const parentContainer = partition.parentNode;
+            if (parentContainer && parentContainer.classList.contains('partition-container')) {
+                parentContainer.removeChild(partition);
+                
+                if (parentContainer.children.length === 1) {
+                    const remainingPartition = parentContainer.children[0];
+                    parentContainer.replaceWith(remainingPartition);
+                }
+            }
+        }
+
+        function initializePartitions() {
+            
+        }
+
+        bindButtons(document.getElementById('container'));
+
+    </script>
+</body>
+</html> 
